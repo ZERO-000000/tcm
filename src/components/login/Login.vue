@@ -56,13 +56,17 @@ export default {
         let data=res.data;
         let code=data.code;
         me.$message(data.msg);
-        if(code=="200"){
-          localStorage.setItem('token',data.token)
-          localStorage.setItem('userId',name)
-          localStorage.setItem('passWord',passWord)
+        if (code == "200") {
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('userId', name);
+          localStorage.setItem('passWord', passWord);
           me.$router.push({
-            path:'/main'
-          })
+            path: '/main'
+          });
+        } else {
+          me.$router.push({
+            path: '/login'
+          });
         }
       });
     }
