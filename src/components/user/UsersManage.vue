@@ -68,24 +68,13 @@
         <el-table
           v-bind:data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)"
           border
-          @selection-change="handleCurrentChange"
-          style="width: 100%;">
-          <el-table-column
-            type="selection">
-          </el-table-column>
-          <el-table-column
-            prop="name"
-            label="用户名"
-            width="180">
-          </el-table-column>
-          <el-table-column
-            prop="phone"
-            label="联系方式">
-          </el-table-column>
-          <el-table-column
-            prop="address"
-            label="地址">
-          </el-table-column>
+          style="width: 100%;"
+          ref="userTableData"
+        >
+          <el-table-column type="selection"></el-table-column>
+          <el-table-column prop="name" label="用户名" width="180"></el-table-column>
+          <el-table-column prop="phone" label="联系方式"></el-table-column>
+          <el-table-column prop="address" label="地址"></el-table-column>
         </el-table>
         <el-pagination background
                        @size-change="pageCurrentChange"
@@ -111,7 +100,7 @@
             //tableHeight: window.innerHeight-400,
             currentRow:null,
             tableData:[],
-            orgSid:null,
+            orgSid:[],
             nodeData:{},
             dialogTitle:'',
             dialogTableVisible: false,
@@ -216,22 +205,22 @@
               console.log(res)
             })
           },
-          searchUsers(){
-            let me=this;
-            let cm={
-              orgSid:this.orgSid
+          searchUsers: function () {
+            let me = this;
+            let params = {
+              orgSid: this.orgSid
             };
-            this.$axios.post('/user/selectByMap',this.$qs.stringify(cm)).then(function (res){
-              if(res.data){
-                debugger
+            this.$axios.post('/user/findUsersByOrgSid', this.$qs.stringify(params,{arrayFormat:'repeat'})).then(function (res) {
+              if (res.data) {
                 me.total = res.data.length;
                 //me.currentPage = 1;
-                me.tableData=res.data;
+                me.tableData = res.data;
               }
             });
           },
           treeCheckChange(obj, checkedObj){
-            this.orgSid=obj.id;
+            //debugger
+            this.orgSid=checkedObj.checkedKeys;
             this.searchUsers();
           },
           //添加新用户
@@ -249,6 +238,7 @@
           },
           //行选择
           handleCurrentChange(selection){
+            console.log("删除")
             this.currentRow = selection[0];
           },
           //编辑用户
@@ -257,11 +247,14 @@
           },
           //删除用户
           delUsers(){
+            debugger
             let me=this;
-            let cm={
-              id:this.currentRow.sid
+            const selectData=this.$refs.userTableData.selection;
+            let params={
+              entities:selectData
             };
-            this.$axios.post('/user/removeById',this.$qs.stringify(cm)).then(function(res){
+            console.log(this.$qs.stringify(params,{arrayFormat: 'repeat'}));
+            this.$axios.post('/user/removeAll',this.$qs.stringify(params,{arrayFormat: 'repeat'})).then(function(res){
               me.searchUsers();
             })
           },

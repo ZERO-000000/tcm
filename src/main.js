@@ -21,6 +21,7 @@ axios.defaults.headers.common['Authorization']=localStorage.getItem('token');
 //添加一个请求拦截器
 axios.interceptors.request.use(function(config){
   //在请求发出之前进行一些操作
+  console.log("请求开始"+config.url)
   return config;
 },function(err){
   //Do something with request error
